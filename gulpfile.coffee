@@ -12,6 +12,8 @@ cssMin = require('gulp-minify-css')
 htmlMin = require('gulp-minify-html')
 notify = require('gulp-notify')
 
+spritesmith = require 'gulp.spritesmith'
+
 
 gulp.task 'default',['js','less','serve'], ->
   #gulp.src('./src/index.html').pipe(gulp.dest('./dist'))
@@ -21,6 +23,17 @@ gulp.task 'default',['js','less','serve'], ->
   target.pipe(gulp.dest('./dist'))
     .pipe(inject(sources, {relative: true}))
     .pipe(gulp.dest('./dist'))
+
+gulp.task 'sprite',->
+  spriteData = 
+    gulp.src('./src/img/*.*')
+      .pipe(spritesmith({
+        imgName: 'sprite.png',
+        cssName: 'sprite.css'
+      }));
+  spriteData.img.pipe(gulp.dest('./dist/img/'));
+  spriteData.css.pipe(gulp.dest('./dist/style/'));
+
 
 gulp.task 'coffee', ->
   gulp.src('./src/**/*.coffee')
@@ -37,13 +50,16 @@ gulp.task 'js', ['coffee'], ->
     .pipe(browserify().on('error',gutil.log))
     .pipe(uglify().on('error',gutil.log))
     .pipe(gulp.dest('./dist'))
-
+ 
+# 在 reload 之前 调通 js 任务重新编译 coffee
 gulp.task 'js-watch',['js'],browserSync.reload
 
 gulp.task 'serve',['js'],->
+  # 启动一个 http server
   browserSync({
     server:{
       baseDir:"./dist"
     }
   })
+  # 监控 coffee 文件变化，如果出现变化 调用 数组中的任务
   gulp.watch('./src/**/*.coffee',['js-watch'])
