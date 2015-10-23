@@ -24,8 +24,9 @@ gulp.task 'default',['js','less','serve'], ->
     .pipe(inject(sources, {relative: true}))
     .pipe(gulp.dest('./dist'))
 
+# sprite.png 和 sprite.css 分别为合并之后的图片以及对应的样式表
 gulp.task 'sprite',->
-  spriteData = 
+  spriteData =
     gulp.src('./src/img/*.*')
       .pipe(spritesmith({
         imgName: 'sprite.png',
@@ -50,7 +51,7 @@ gulp.task 'js', ['coffee'], ->
     .pipe(browserify().on('error',gutil.log))
     .pipe(uglify().on('error',gutil.log))
     .pipe(gulp.dest('./dist'))
- 
+
 # 在 reload 之前 调通 js 任务重新编译 coffee
 gulp.task 'js-watch',['js'],browserSync.reload
 
